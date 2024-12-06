@@ -8,6 +8,8 @@
 *.so
 *.dylib
 
+tmp/
+
 # Test binary, built with `go test -c`
 *.test
 
@@ -26,3 +28,6 @@ go.work.sum
 
 # goland files
 .idea/
+
+# npm files
+node_modules/
