@@ -31,3 +31,8 @@ go.work.sum
 
 # npm files
 node_modules/
+# Tailwind output
+public/css/output.css
+
+#Some test html files
+test.html
