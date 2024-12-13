@@ -62,7 +62,6 @@ func (h *Handler) UserSetupForm(c echo.Context) error {
 	// TODO: need to return something that can be used by the form? A new page with some error message
 
 	// Create new User and insert into db
-	// TODO: Get user Data from Hanko api
 	token, err := h.Hanko.ValidateHankoCookie(c)
 	if err != nil {
 		log2.Warnf("Not able to validate 'hanko' cookie, %s", err)

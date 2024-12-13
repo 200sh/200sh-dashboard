@@ -117,7 +117,6 @@ func DashboardBase(props DashboardBaseProps, children ...Node) Node {
 					),
 					Div(Class("flex items-center gap-x-4"),
 						// TODO: Add Contact Us button here
-						// TODO Add user name with dropdown to profile, billing, and logout
 						components.DropDown(
 							Div(Class("flex items-center gap-x-2 cursor-pointer rounded-full"),
 								Div(
