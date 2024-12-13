@@ -41,7 +41,7 @@ func header(isLoggedIn bool, showActionButton bool) Node {
 		Nav(Class("mx-auto flex max-w-7xl items-center justify-center gap-x-6 p-6 lg:px-16 pt-6 lg:pt-16"),
 			Div(Class("flex lg:flex-1"),
 				A(Href("/"),
-					Img(Class("block w-14 h-14"), Src("/200sh-logo.svg")),
+					Img(Class("block w-14 h-14"), Src("/static/200sh-logo.svg")),
 				),
 			),
 			Div(Class("flex flex-1 items-center justify-end gap-x-6 text-lg"),

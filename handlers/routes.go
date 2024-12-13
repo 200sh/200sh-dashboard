@@ -9,6 +9,8 @@ import (
 func SetupRoutes(e *echo.Echo, am *middleware.AuthMiddleware, ah *auth.Handler) {
 	e.GET("/", LandingPageHandler)
 	e.GET("/login", ah.LoginPageHandler)
+	e.GET("/user/setup", ah.UserSetupPage)
+	e.POST("/user/setup", ah.UserSetupForm)
 
 	// Auth Required routes
 	aq := e.Group("/dashboard", am.AuthRequired())
