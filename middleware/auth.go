@@ -1,14 +1,11 @@
 package middleware
 
 import (
-	"context"
 	"errors"
-	"fmt"
+	"github.com/200sh/200sh-dashboard/hanko"
 	"github.com/200sh/200sh-dashboard/models"
 	"github.com/labstack/echo/v4"
 	log2 "github.com/labstack/gommon/log"
-	"github.com/lestrrat-go/jwx/jwk"
-	"github.com/lestrrat-go/jwx/jwt"
 	"net/http"
 )
 
@@ -18,35 +15,18 @@ const (
 )
 
 type AuthMiddleware struct {
-	HankoApiUrl string
+	Hanko *hanko.Hanko
 	models.UserService
 }
 
 func (am AuthMiddleware) IsLoggedInEnriched() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			_, err := am.ValidateHankoCookie(c)
+			_, err := am.Hanko.ValidateHankoCookie(c)
 			c.Set(IsLoggedInKey, err == nil)
 			return next(c)
 		}
 	}
-}
-
-func (am AuthMiddleware) ValidateHankoCookie(c echo.Context) (jwt.Token, error) {
-	cookie, err := c.Cookie("hanko") // TODO: CONFIG: Add this to a config
-	if err != nil {
-		return nil, err
-	}
-
-	set, err := jwk.Fetch(
-		context.Background(),
-		fmt.Sprintf("%v/.well-known/jwks.json", am.HankoApiUrl),
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	return jwt.Parse([]byte(cookie.Value), jwt.WithKeySet(set))
 }
 
 // AuthRequired
@@ -56,7 +36,7 @@ func (am AuthMiddleware) ValidateHankoCookie(c echo.Context) (jwt.Token, error) 
 func (am AuthMiddleware) AuthRequired() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			token, err := am.ValidateHankoCookie(c)
+			token, err := am.Hanko.ValidateHankoCookie(c)
 			if errors.Is(err, http.ErrNoCookie) {
 				log2.Info("No 'hanko' cookie set")
 				return c.Redirect(http.StatusTemporaryRedirect, "/login")

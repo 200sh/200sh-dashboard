@@ -6,6 +6,7 @@ import (
 	"github.com/200sh/200sh-dashboard/database"
 	"github.com/200sh/200sh-dashboard/handlers"
 	"github.com/200sh/200sh-dashboard/handlers/auth"
+	"github.com/200sh/200sh-dashboard/hanko"
 	middleware2 "github.com/200sh/200sh-dashboard/middleware"
 	"github.com/200sh/200sh-dashboard/models"
 	"github.com/labstack/echo/v4"
@@ -38,13 +39,14 @@ func main() {
 
 	// Setup services
 	us := models.NewUserService(db)
+	hankoClient := hanko.New(cfg.HankoApiUrl)
 
 	// AuthMiddleware
-	am := middleware2.AuthMiddleware{HankoApiUrl: cfg.HankoApiUrl, UserService: us}
+	am := middleware2.AuthMiddleware{Hanko: &hankoClient, UserService: us}
 	e.Use(am.IsLoggedInEnriched())
 
 	// Setup handler
-	ah := auth.Handler{HankoApiUrl: cfg.HankoApiUrl}
+	ah := auth.Handler{Hanko: &hankoClient, UserService: us}
 
 	// Setup routes
 	e.Static("/static", "public")

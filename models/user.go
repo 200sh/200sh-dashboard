@@ -91,7 +91,7 @@ func (s UserService) CreateUser(user *User) error {
 		return err
 	}
 
-	_, err = stmt.Exec(user.Id, user.Provider, user.Name, user.Email, user.Status, user.CreatedAt)
+	_, err = stmt.Exec(user.ProviderId, user.Provider, user.Name, user.Email, user.Status, user.CreatedAt)
 	if err != nil {
 		return err
 	}
