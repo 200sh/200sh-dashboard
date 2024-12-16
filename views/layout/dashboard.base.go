@@ -1,11 +1,14 @@
 package layout
 
 import (
+	"fmt"
+	"github.com/200sh/200sh-dashboard/models"
 	"github.com/200sh/200sh-dashboard/views/components"
 	lucide "github.com/eduardolat/gomponents-lucide"
 	. "maragu.dev/gomponents"
 	. "maragu.dev/gomponents/components"
 	. "maragu.dev/gomponents/html"
+	"strings"
 )
 
 type DashboardBaseProps struct {
@@ -13,6 +16,7 @@ type DashboardBaseProps struct {
 	Description     string
 	CurrentPath     string
 	HankoApiUrl     string
+	User            *models.User
 	OptionalScripts []Node
 }
 
@@ -45,6 +49,8 @@ func DashboardBase(props DashboardBaseProps, children ...Node) Node {
 	}
 	headNodes = append(headNodes, props.OptionalScripts...)
 
+	initials := strings.Fields(props.User.Name)
+
 	return HTML5(HTML5Props{
 		Title:       "200.sh - " + props.Title,
 		Description: props.Description,
@@ -61,7 +67,7 @@ func DashboardBase(props DashboardBaseProps, children ...Node) Node {
 					// Header logo top left
 					Div(Class("flex h-16 shrink-0 items-center justify-center lg:mt-8 lg:mb-3"),
 						A(Href("/dashboard"),
-							Img(Class("block h-16"), Src("/200sh-logo.svg"), Alt("200.sh logo")),
+							Img(Class("block h-16"), Src("/static/200sh-logo.svg"), Alt("200.sh logo")),
 						),
 					),
 
@@ -111,21 +117,21 @@ func DashboardBase(props DashboardBaseProps, children ...Node) Node {
 					),
 					Div(Class("flex items-center gap-x-4"),
 						// TODO: Add Contact Us button here
-						// TODO Add user name with dropdown to profile, billing, and logout
 						components.DropDown(
 							Div(Class("flex items-center gap-x-2 cursor-pointer rounded-full"),
 								Div(
 									Img(Class("h-10 w-10 rounded-full object-cover"),
-										Alt("Bob Name"),
-										Src("https://ui-avatars.com/api/?name=B+N&color=223D30&background=9ACD32"),
+										Alt(props.User.Name),
+
+										Src(fmt.Sprintf("https://ui-avatars.com/api/?name=%s+%s&color=223D30&background=9ACD32", initials[0], initials[1])),
 									),
 								),
 								Div(Class("flex-col hidden lg:flex"),
 									Div(Class("text-sm font-semibold text-gray-700"),
-										Text("Bob Name"),
+										Text(props.User.Name),
 									),
 									Div(Class("text-xs text-gray-700"),
-										Text("bob.name@gmail.com"),
+										Text(props.User.Email),
 									),
 								),
 							),

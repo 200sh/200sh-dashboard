@@ -10,8 +10,9 @@ import (
 )
 
 type Config struct {
-	HankoApiUrl string
-	LogLevel    log2.Lvl
+	HankoApiUrl  string
+	DatabaseName string
+	LogLevel     log2.Lvl
 }
 
 // LoadConfig
@@ -30,6 +31,11 @@ func LoadConfig() Config {
 		log.Fatal("'HANKO_API_KEY' is not set")
 	}
 
+	databaseName, ok := os.LookupEnv("DATABASE_NAME")
+	if !ok || databaseName == "" {
+		log.Fatal("'DATABASE_NAME' is not set")
+	}
+
 	var logLvl log2.Lvl
 	logLvlEnv, ok := os.LookupEnv("LOG_LEVEL")
 	if !ok || logLvlEnv == "" {
@@ -43,8 +49,9 @@ func LoadConfig() Config {
 	}
 
 	return Config{
-		HankoApiUrl: hankoApiUrl,
-		LogLevel:    logLvl,
+		HankoApiUrl:  hankoApiUrl,
+		DatabaseName: databaseName,
+		LogLevel:     logLvl,
 	}
 }
 

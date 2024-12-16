@@ -26,6 +26,9 @@ go.work.sum
 # env file
 .env
 
+# databases
+*.db
+
 # goland files
 .idea/
 
