@@ -24,3 +24,11 @@ func (h *Handler) MonitorsHandler(c echo.Context) error {
 	}
 	return dashboard.Monitor(c.Path(), h.Hanko.HankoApiUrl, user).Render(c.Response().Writer)
 }
+
+func (h *Handler) NewMonitorHandler(c echo.Context) error {
+	user := c.Get(middleware.UserIDKey).(*models.User)
+	if user == nil {
+		return c.Redirect(http.StatusTemporaryRedirect, "/login")
+	}
+	return dashboard.NewMonitor(h.Hanko.HankoApiUrl, user).Render(c.Response().Writer)
+}

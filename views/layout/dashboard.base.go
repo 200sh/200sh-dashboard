@@ -56,14 +56,14 @@ func DashboardBase(props DashboardBaseProps, children ...Node) Node {
 		Description: props.Description,
 		Language:    "en",
 		Head:        headNodes,
-		Body: []Node{Class("h-full bg-gray-50"), Div(
+		Body: []Node{Class("h-screen bg-cover bg-gradient-to-br from-slate-50 to-emerald-100"), Div(
 			// TODO; Off canvas menu for mobile, show/hide base on off-canvas menu state.
 			Div(),
 
 			// Static Sidebar for desktop
 			Div(Class("hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col"),
 				// Sidebar component swap this element with another sidebar if needed
-				Div(Class("flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white px-6 pb-4"),
+				Div(Class("flex grow flex-col gap-y-5 overflow-y-auto px-6 pb-4"),
 					// Header logo top left
 					Div(Class("flex h-16 shrink-0 items-center justify-center lg:mt-8 lg:mb-3"),
 						A(Href("/dashboard"),
@@ -137,13 +137,13 @@ func DashboardBase(props DashboardBaseProps, children ...Node) Node {
 							),
 
 							// Dropdown items
-							A(Class("w-full flex items-center justify-center gap-x-2 hover:bg-gray-50 text-sm rounded-xl p-2"),
+							A(Class("w-full flex items-center justify-center gap-x-2 hover:bg-primary/60 text-sm rounded-xl p-2"),
 								Href("/dashboard/profile"),
 								lucide.User(),
 								Text("Profile"),
 							),
 
-							A(Class("w-full flex items-center justify-center gap-x-2 hover:bg-gray-50 text-sm rounded-xl p-2"),
+							A(Class("w-full flex items-center justify-center gap-x-2 hover:bg-primary/60 text-sm rounded-xl p-2"),
 								Href("/dashboard/billing"),
 								lucide.CreditCard(),
 								Text("Billing"),
@@ -152,7 +152,7 @@ func DashboardBase(props DashboardBaseProps, children ...Node) Node {
 							// Separator
 							Br(),
 							// Logout
-							Button(Class("w-full flex items-center justify-center gap-x-2 hover:bg-gray-50 text-sm rounded-xl p-2"), ID("logout-link"),
+							Button(Class("w-full flex items-center justify-center gap-x-2 hover:bg-primary/60 text-sm rounded-xl p-2"), ID("logout-link"),
 								lucide.LogOut(),
 								Text("Log Out"),
 							),
@@ -175,14 +175,12 @@ func sidebarItem(name string, href string, icon func(children ...Node) Node, act
 	return Li(
 		A(Href(href),
 			Classes{
-				"group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold": true,
-				"bg-gray-50 text-primary":                                   active,
-				"text-gray-700 hover:bg-gray-50 hover:text-primary":         !active,
+				"group flex justify-start items-center gap-x-4 rounded-xl p-2 text-sm/6 font-semibold": true,
+				"text-gray-700 bg-primary hover:bg-primary/60":                                         active,
+				"text-gray-700 hover:bg-primary/60":                                                    !active,
 			},
 			icon(Classes{
-				"size-6 shrink-0":                        true,
-				"text-primary":                           active,
-				"text-gray-400 group-hover:text-primary": !active,
+				"size-8 rounded-xl p-1.5 bg-slate-50": true,
 			}),
 			Text(name),
 		),
