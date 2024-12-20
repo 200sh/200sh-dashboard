@@ -39,7 +39,7 @@ close(focusAfter) {
 			Attr(":aria-expanded", "open"),
 			Attr(":aria-controls", "$id('dropdown-button')"),
 			Type("button"),
-			Class("relative flex items-center whitespace-nowrap justify-center gap-2 px-3 py-2 rounded-full hover:bg-gray-100 text-gray-800"),
+			Class("relative flex items-center whitespace-nowrap justify-center gap-2 px-3 py-2 rounded-full hover:bg-primary/60 text-gray-900"),
 
 			button,
 		),
@@ -52,7 +52,7 @@ close(focusAfter) {
 			x.On("click.outside", "close($refs.button)"),
 			Attr(":id", "$id('dropdown-button')"),
 			x.Cloak(),
-			Class("absolute left-0 gap-y-2 min-w-48 rounded-lg shadow-sm mt-2 z-10 origin-top-left  p-1.5 outline-none bg-white border border-gray-200"),
+			Class("absolute left-0 gap-y-2 min-w-48 rounded-lg shadow-sm mt-2 z-10 origin-top-left  p-1.5 outline-none "+FrostedBg),
 
 			Group(panelEls),
 		),
