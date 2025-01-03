@@ -8,7 +8,8 @@ CREATE TABLE user
     name        text NOT NULL,
     email       text NOT NULL,
     status      text NOT NULL,                     -- Status of the user, can be a few values e.g. 'active', 'not-verified', 'banned', etc.
-    created_at  datetime      DEFAULT CURRENT_TIMESTAMP
+    created_at  datetime      DEFAULT CURRENT_TIMESTAMP,
+    updated_at  datetime      DEFAULT CURRENT_TIMESTAMP
 );
 -- +goose StatementEnd
 
