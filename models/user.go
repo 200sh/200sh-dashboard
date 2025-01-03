@@ -42,6 +42,7 @@ type User struct {
 	Name       string
 	Status     UserStatus
 	CreatedAt  time.Time
+	UpdatedAt  time.Time
 }
 
 type UserService struct {
@@ -54,10 +55,10 @@ func NewUserService(db *sql.DB) UserService {
 
 var NoUserFound = errors.New("user: no user found")
 
-func (s UserService) GetByProviderId(id string) (*User, error) {
+func (s *UserService) GetByProviderId(id string) (*User, error) {
 	// Try to fetch the user from the db given a provider id
 	row := s.db.QueryRow(
-		`SELECT id, provider_id, provider, name, email, status, created_at FROM user WHERE provider_id = ?`,
+		`SELECT id, provider_id, provider, name, email, status, created_at, updated_at FROM user WHERE provider_id = ?`,
 		id,
 	)
 
@@ -71,6 +72,7 @@ func (s UserService) GetByProviderId(id string) (*User, error) {
 		&user.Email,
 		&user.Status,
 		&user.CreatedAt,
+		&user.UpdatedAt,
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -82,7 +84,7 @@ func (s UserService) GetByProviderId(id string) (*User, error) {
 	return &user, nil
 }
 
-func (s UserService) CreateUser(user *User) error {
+func (s *UserService) CreateUser(user *User) error {
 	stmt, err := s.db.Prepare(`
 	INSERT INTO user (provider_id, provider, name, email, status, created_at) 
 	VALUES (?, ?, ?, ?, ?, ?)
@@ -92,6 +94,22 @@ func (s UserService) CreateUser(user *User) error {
 	}
 
 	_, err = stmt.Exec(user.ProviderId, user.Provider, user.Name, user.Email, user.Status, user.CreatedAt)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *UserService) CreateMonitor(monitor *Monitor) error {
+	stmt, err := s.db.Prepare(`
+	INSERT INTO monitor (user_id, url) VALUES (?, ?)
+`)
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(monitor.UserId, monitor.Url)
 	if err != nil {
 		return err
 	}
