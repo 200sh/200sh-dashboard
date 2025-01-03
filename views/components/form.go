@@ -14,10 +14,11 @@ type StyledInputProps struct {
 	Required     bool
 	Label        string
 	Value        string
+	Class        string
 }
 
 func StyledInput(p StyledInputProps) Node {
-	return Div(
+	return Div(Class(p.Class),
 		Label(Class("block text-sm/6 font-medium text-gray-900"), For(p.ID), Text(p.Label)),
 
 		Div(Class("mt-2"),
