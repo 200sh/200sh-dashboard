@@ -14,6 +14,10 @@ import (
 	"log"
 )
 
+const (
+	PORT = 3000
+)
+
 func main() {
 	fmt.Println("⌨️Loading config")
 	cfg := config.LoadConfig()
@@ -25,7 +29,7 @@ func main() {
 		log.Fatalf("Error creating database: %s\n", err)
 	}
 
-	fmt.Println("💻Starting server on http://localhost:8080")
+	fmt.Printf("💻Starting server on http://localhost:%d\n", PORT)
 	e := echo.New()
 
 	// Pre Middlewares
@@ -50,8 +54,20 @@ func main() {
 
 	// Setup routes
 	e.Static("/static", "public")
+
+	if cfg.IsDev {
+		e.GET("/*", func(c echo.Context) error {
+			response := c.Response()
+			response.Header().Set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate")
+			response.Header().Set("Expires", "0")
+			response.Header().Set("Pragma", "no-cache")
+			response.Header().Set("Surrogate-Control", "no-store")
+			return c.File(c.Param("*"))
+		})
+	}
+
 	handlers.SetupRoutes(e, &am, &ah)
 
 	// Start Server
-	e.Logger.Fatal(e.Start(":8080"))
+	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", PORT)))
 }

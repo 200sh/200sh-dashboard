@@ -32,7 +32,9 @@ To install the 200sh Dashboard, follow these steps:
 To configure the project, create a `.env` file in the root directory with the following content:
 ```sh
 HANKO_API_URL="" # Replace with your project's API URL
+DATABASE_NAME="dev.db" # Name of the database. Currently hardcoded to be a sqlite3 database
 LOG_LEVEL="WARN" # WARN is the default level. Others: DEBUG, INFO, WARN, ERROR, OFF
+DEV="false" # false is the default. Setting to true will remove some caching making live reloading better.
 ```
 
 ## Usage
@@ -42,7 +44,13 @@ To start the 200sh Dashboard, run the following command:
 ./tmp/main
 ```
 
-The server will start on `http://localhost:8080`.
+The server will start on `http://localhost:3000`.
+
+for live reloading when developing we recommend using [air](https://github.com/air-verse/air) and running the server
+with the command:
+```shell
+air
+```
 
 ## Contribution Guidelines
 

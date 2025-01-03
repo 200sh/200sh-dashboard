@@ -6,6 +6,7 @@ import (
 	log2 "github.com/labstack/gommon/log"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -13,6 +14,7 @@ type Config struct {
 	HankoApiUrl  string
 	DatabaseName string
 	LogLevel     log2.Lvl
+	IsDev        bool
 }
 
 // LoadConfig
@@ -24,6 +26,13 @@ func LoadConfig() Config {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file", err)
+	}
+
+	isDevEnv, ok := os.LookupEnv("DEV")
+	isDev, err := strconv.ParseBool(isDevEnv)
+	if !ok || err != nil {
+		log.Println("'DEV' is not set correctly defaulting to 'false'")
+		isDev = false
 	}
 
 	hankoApiUrl, ok := os.LookupEnv("HANKO_API_URL")
@@ -52,6 +61,7 @@ func LoadConfig() Config {
 		HankoApiUrl:  hankoApiUrl,
 		DatabaseName: databaseName,
 		LogLevel:     logLvl,
+		IsDev:        isDev,
 	}
 }
 
