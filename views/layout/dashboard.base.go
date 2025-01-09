@@ -24,6 +24,10 @@ func (p DashboardBaseProps) isCurrentPage(page string) bool {
 	return p.CurrentPath == page
 }
 
+func (p DashboardBaseProps) isCurrentPageOrChild(page string) bool {
+	return strings.HasPrefix(p.CurrentPath, page)
+}
+
 func DashboardBase(props DashboardBaseProps, children ...Node) Node {
 	headNodes := []Node{
 		Meta(Charset("UTF-8")),
@@ -90,7 +94,7 @@ func DashboardBase(props DashboardBaseProps, children ...Node) Node {
 										"Monitors",
 										"/dashboard/monitors",
 										lucide.MonitorUp,
-										props.isCurrentPage("/dashboard/monitors"),
+										props.isCurrentPageOrChild("/dashboard/monitors"),
 									),
 								),
 

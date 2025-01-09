@@ -116,3 +116,65 @@ func (s *UserService) CreateMonitor(monitor *Monitor) error {
 
 	return nil
 }
+
+func (s *UserService) GetMonitors(user *User) ([]Monitor, error) {
+	stmt, err := s.db.Prepare(`
+	SELECT id, user_id, url, created_at, updated_at FROM monitor WHERE user_id = ?
+`)
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := stmt.Query(user.Id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	monitors := make([]Monitor, 0)
+
+	for rows.Next() {
+		var monitor Monitor
+		err = rows.Scan(
+			&monitor.Id,
+			&monitor.UserId,
+			&monitor.Url,
+			&monitor.CreatedAt,
+			&monitor.UpdatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		monitors = append(monitors, monitor)
+	}
+
+	return monitors, nil
+}
+
+// GetMonitor Fetches the monitor by the given id if it exists for that user
+func (s *UserService) GetMonitor(id int, user *User) (*Monitor, error) {
+	stmt, err := s.db.Prepare(`
+	SELECT id, user_id, url, created_at, updated_at FROM monitor WHERE id = ? AND user_id = ?
+`)
+	if err != nil {
+		return nil, err
+	}
+
+	row := stmt.QueryRow(id, user.Id)
+
+	var monitor Monitor
+
+	err = row.Scan(
+		&monitor.Id,
+		&monitor.UserId,
+		&monitor.Url,
+		&monitor.CreatedAt,
+		&monitor.UpdatedAt,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &monitor, nil
+}

@@ -8,6 +8,7 @@ import (
 	log2 "github.com/labstack/gommon/log"
 	"net/http"
 	"net/url"
+	"strconv"
 )
 
 func (h *Handler) HomeHandler(c echo.Context) error {
@@ -24,7 +25,42 @@ func (h *Handler) MonitorsHandler(c echo.Context) error {
 	if user == nil {
 		return c.Redirect(http.StatusTemporaryRedirect, "/login")
 	}
-	return dashboard.Monitor(c.Path(), h.Hanko.HankoApiUrl, user).Render(c.Response().Writer)
+
+	monitors, err := h.UserService.GetMonitors(user)
+	if err != nil {
+		return err
+	}
+
+	return dashboard.Monitor(c.Path(), h.Hanko.HankoApiUrl, user, monitors).Render(c.Response().Writer)
+}
+
+//type MonitorQueryParam struct {
+//	Id string `param:"id"`
+//}
+
+func (h *Handler) ViewMonitorHandler(c echo.Context) error {
+	//var mqp MonitorQueryParam
+	//err := c.Bind(mqp)
+	//if err != nil {
+	//	return c.String(http.StatusBadRequest, "Not valid ID")
+	//}
+
+	user := c.Get(middleware.UserIDKey).(*models.User)
+	if user == nil {
+		return c.Redirect(http.StatusTemporaryRedirect, "/login")
+	}
+
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return c.Redirect(http.StatusTemporaryRedirect, "/dashboard/monitors")
+	}
+
+	monitor, err := h.UserService.GetMonitor(id, user)
+	if err != nil {
+		return c.Redirect(http.StatusTemporaryRedirect, "/dashboard/monitors")
+	}
+
+	return dashboard.ViewMonitor(c.Path(), h.Hanko.HankoApiUrl, user, monitor).Render(c.Response().Writer)
 }
 
 func (h *Handler) NewMonitorHandler(c echo.Context) error {

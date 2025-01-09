@@ -16,6 +16,7 @@ func SetupRoutes(e *echo.Echo, am *middleware.AuthMiddleware, ah *auth.Handler) 
 	aq := e.Group("/dashboard", am.AuthRequired())
 	aq.GET("", ah.HomeHandler)
 	aq.GET("/monitors", ah.MonitorsHandler)
+	aq.GET("/monitors/:id", ah.ViewMonitorHandler)
 	aq.GET("/monitors/new", ah.NewMonitorHandler)
 	aq.POST("/monitors/new", ah.NewMonitorFormHandler)
 
