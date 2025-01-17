@@ -19,8 +19,9 @@ const (
 )
 
 func main() {
-	fmt.Println("⌨️Loading config")
+	fmt.Println("⌨️ Loading config")
 	cfg := config.LoadConfig()
+	fmt.Println(cfg.String())
 
 	// Database
 	fmt.Println("💽Loading database")
@@ -67,6 +68,7 @@ func main() {
 	}
 
 	handlers.SetupRoutes(e, &am, &ah)
+	handlers.SetupApi(e, &cfg)
 
 	// Start Server
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", PORT)))
