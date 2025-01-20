@@ -168,13 +168,34 @@ func ViewMonitor(currentPath string, hankoApiUrl string, user *models.User, moni
 		CurrentPath:     currentPath,
 		HankoApiUrl:     hankoApiUrl,
 		User:            user,
-		OptionalScripts: nil,
+		OptionalScripts: []Node{
+			Script(Defer(), Src("/static/js/view-monitor.js")),
+		},
 	}
 
 	return layout.DashboardBase(props,
-		Div(Class("flex justify-center items-center"),
-			Text("hello world from"),
-			Text(monitor.Url),
+		Div(Class("flex flex-col items-center"),
+			// Header with URL, edit and delete buttons
+			Div(Class("flex justify-between items-center w-full p-4 bg-white shadow-md rounded-md"),
+				Div(Class("text-lg font-semibold"), Text(monitor.Url)),
+				Div(Class("flex gap-2"),
+					A(Href(fmt.Sprintf("/dashboard/monitors/%d/edit", monitor.Id)),
+						Class("px-4 py-2 bg-blue-500 text-white rounded-md"),
+						Text("Edit"),
+					),
+					Button(
+						Class("px-4 py-2 bg-red-500 text-white rounded-md"),
+						ID("delete-button"),
+						Data("monitor-id", fmt.Sprintf("%d", monitor.Id)),
+						Text("Delete"),
+					),
+				),
+			),
+
+			// Latency graph container
+			Div(Class("w-full mt-4 p-4 bg-white shadow-md rounded-md"),
+				Canvas(ID("latency-graph"), Class("w-full h-64")),
+			),
 		),
 	)
 }
