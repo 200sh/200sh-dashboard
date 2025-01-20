@@ -163,7 +163,7 @@ func NoMonitor() Node {
 
 func ViewMonitor(currentPath string, hankoApiUrl string, user *models.User, monitor *models.Monitor) Node {
 	props := layout.DashboardBaseProps{
-		Title:           fmt.Sprintf("Monitor - %s", monitor.Url),
+		Title:           "Monitor",
 		Description:     "",
 		CurrentPath:     currentPath,
 		HankoApiUrl:     hankoApiUrl,
@@ -177,7 +177,7 @@ func ViewMonitor(currentPath string, hankoApiUrl string, user *models.User, moni
 	return layout.DashboardBase(props,
 		Div(Class("flex flex-col items-center"),
 			// Header with URL, edit and delete buttons
-			Div(Class("flex justify-between items-center w-full p-4 bg-white shadow-md rounded-md"),
+			Div(Class("flex justify-between items-center w-full p-4 "+components.FrostedBg),
 				Div(Class("text-lg font-semibold"), Text(monitor.Url)),
 				Div(Class("flex gap-2"),
 					A(Href(fmt.Sprintf("/dashboard/monitors/%d/edit", monitor.Id)),
@@ -194,7 +194,7 @@ func ViewMonitor(currentPath string, hankoApiUrl string, user *models.User, moni
 			),
 
 			// Latency graph container
-			Div(Class("w-full mt-4 p-4 bg-white shadow-md rounded-md"),
+			Div(Class("w-full mt-4 p-4 "+components.FrostedBg),
 				Div(ID("latency-graph"), Class("w-full h-64")),
 			),
 		),
