@@ -27,38 +27,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Fake test data for latency graph
     const latencyData = {
-        labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-        datasets: [{
-            label: 'Latency (ms)',
-            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-            borderColor: 'rgba(75, 192, 192, 1)',
-            borderWidth: 1,
+        series: [{
+            name: 'Latency (ms)',
             data: [65, 59, 80, 81, 56, 55, 40]
-        }]
-    };
-
-    const ctx = document.getElementById('latency-graph').getContext('2d');
-    new Chart(ctx, {
-        type: 'line',
-        data: latencyData,
-        options: {
-            responsive: true,
-            scales: {
-                x: {
-                    display: true,
-                    title: {
-                        display: true,
-                        text: 'Month'
-                    }
-                },
-                y: {
-                    display: true,
-                    title: {
-                        display: true,
-                        text: 'Latency (ms)'
-                    }
-                }
+        }],
+        chart: {
+            height: 350,
+            type: 'line'
+        },
+        xaxis: {
+            categories: ['January', 'February', 'March', 'April', 'May', 'June', 'July']
+        },
+        yaxis: {
+            title: {
+                text: 'Latency (ms)'
             }
         }
-    });
+    };
+
+    const chart = new ApexCharts(document.querySelector("#latency-graph"), latencyData);
+    chart.render();
 });

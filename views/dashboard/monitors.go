@@ -170,6 +170,7 @@ func ViewMonitor(currentPath string, hankoApiUrl string, user *models.User, moni
 		User:            user,
 		OptionalScripts: []Node{
 			Script(Defer(), Src("/static/js/view-monitor.js")),
+			Script(Src("https://cdn.jsdelivr.net/npm/apexcharts")),
 		},
 	}
 
@@ -194,7 +195,7 @@ func ViewMonitor(currentPath string, hankoApiUrl string, user *models.User, moni
 
 			// Latency graph container
 			Div(Class("w-full mt-4 p-4 bg-white shadow-md rounded-md"),
-				Canvas(ID("latency-graph"), Class("w-full h-64")),
+				Div(ID("latency-graph"), Class("w-full h-64")),
 			),
 		),
 	)
