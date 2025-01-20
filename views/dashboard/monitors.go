@@ -2,7 +2,7 @@ package dashboard
 
 import (
 	"fmt"
-	"github.com/200sh/200sh-dashboard/models"
+	"github.com/200sh/200sh-dashboard/internal/repository"
 	"github.com/200sh/200sh-dashboard/views/components"
 	"github.com/200sh/200sh-dashboard/views/layout"
 	lucide "github.com/eduardolat/gomponents-lucide"
@@ -10,7 +10,7 @@ import (
 	. "maragu.dev/gomponents/html"
 )
 
-func Monitor(currentPath string, hankoApiUrl string, user *models.User, monitors []models.Monitor) Node {
+func Monitor(currentPath string, hankoApiUrl string, user *repository.User, monitors []repository.Monitor) Node {
 	props := layout.DashboardBaseProps{
 		Title:           "Monitors",
 		Description:     "All uptime monitors",
@@ -36,7 +36,7 @@ func Monitor(currentPath string, hankoApiUrl string, user *models.User, monitors
 	)
 }
 
-func NewMonitor(hankoApiUrl string, user *models.User) Node {
+func NewMonitor(hankoApiUrl string, user *repository.User) Node {
 	props := layout.DashboardBaseProps{
 		Title:       "Monitors",
 		Description: "All uptime monitors",
@@ -72,7 +72,7 @@ func NewMonitor(hankoApiUrl string, user *models.User) Node {
 	)
 }
 
-func ListMonitors(monitors []models.Monitor) Node {
+func ListMonitors(monitors []repository.Monitor) Node {
 	return Div(Class("min-w-96"),
 		// Heading
 		Div(Class("-ml-4 -mt-2 flex flex-wrap items-center justify-between sm:flex-nowrap"),
@@ -91,14 +91,14 @@ func ListMonitors(monitors []models.Monitor) Node {
 		Ul(
 			Role("list"),
 			Class("mt-8 divide-y divide-gray-100"),
-			Map(monitors, func(m models.Monitor) Node {
+			Map(monitors, func(m repository.Monitor) Node {
 				return MonitorListItem(m)
 			}),
 		),
 	)
 }
 
-func MonitorListItem(monitor models.Monitor) Node {
+func MonitorListItem(monitor repository.Monitor) Node {
 	return Li(
 		Class("relative flex justify-between gap-x-6 rounded-lg px-4 py-5 hover:bg-primary/60 sm:px-6 lg:px-8"),
 		Div(
@@ -113,7 +113,7 @@ func MonitorListItem(monitor models.Monitor) Node {
 				P(
 					Class("text-sm/6 font-semibold text-gray-900"),
 					A(
-						Href(fmt.Sprintf("/dashboard/monitors/%d", monitor.Id)),
+						Href(fmt.Sprintf("/dashboard/monitors/%d", monitor.ID)),
 						// The <span> with absolute classes can just be included inline if needed:
 						Span(
 							Class("absolute inset-x-0 -top-px bottom-0"),
@@ -161,7 +161,7 @@ func NoMonitor() Node {
 	)
 }
 
-func ViewMonitor(currentPath string, hankoApiUrl string, user *models.User, monitor *models.Monitor) Node {
+func ViewMonitor(currentPath string, hankoApiUrl string, user *repository.User, monitor *repository.Monitor) Node {
 	props := layout.DashboardBaseProps{
 		Title:           fmt.Sprintf("Monitor - %s", monitor.Url),
 		Description:     "",

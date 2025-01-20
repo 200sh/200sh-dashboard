@@ -2,7 +2,7 @@ package layout
 
 import (
 	"fmt"
-	"github.com/200sh/200sh-dashboard/models"
+	"github.com/200sh/200sh-dashboard/internal/repository"
 	"github.com/200sh/200sh-dashboard/views/components"
 	lucide "github.com/eduardolat/gomponents-lucide"
 	. "maragu.dev/gomponents"
@@ -16,7 +16,7 @@ type DashboardBaseProps struct {
 	Description     string
 	CurrentPath     string
 	HankoApiUrl     string
-	User            *models.User
+	User            *repository.User
 	OptionalScripts []Node
 }
 

@@ -7,13 +7,13 @@ import (
 
 type Monitor struct {
 	Id        int
-	UserId    int
+	UserId    int64
 	Url       string
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
 
-func New(url url.URL, userId int) Monitor {
+func New(url url.URL, userId int64) Monitor {
 	t := time.Now()
 	return Monitor{
 		Id:        0, // Leave this empty for now as this will be created by the database later

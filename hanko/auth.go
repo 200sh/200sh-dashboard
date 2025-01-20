@@ -6,7 +6,6 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/lestrrat-go/jwx/jwk"
 	"github.com/lestrrat-go/jwx/jwt"
-	"strconv"
 )
 
 type Hanko struct {
@@ -67,17 +66,4 @@ func (h *Hanko) ValidateHankoCookie(c echo.Context) (jwt.Token, error) {
 	}
 
 	return jwt.Parse([]byte(cookie.Value), jwt.WithKeySet(set))
-}
-
-func getBoolVal(boolMap map[string]string, key string) (bool, error) {
-	val, ok := boolMap[key]
-	if !ok {
-		return false, fmt.Errorf("'%s' not found in map", key)
-	}
-	boolVal, err := strconv.ParseBool(val)
-	if err != nil {
-		return false, fmt.Errorf("'%s' not a bool, is type %T", key, val)
-	}
-
-	return boolVal, nil
 }

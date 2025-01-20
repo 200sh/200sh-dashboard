@@ -1,9 +1,11 @@
 package middleware
 
 import (
+	"context"
+	"database/sql"
 	"errors"
 	"github.com/200sh/200sh-dashboard/hanko"
-	"github.com/200sh/200sh-dashboard/models"
+	"github.com/200sh/200sh-dashboard/internal/repository"
 	"github.com/labstack/echo/v4"
 	log2 "github.com/labstack/gommon/log"
 	"net/http"
@@ -16,7 +18,8 @@ const (
 
 type AuthMiddleware struct {
 	Hanko *hanko.Hanko
-	models.UserService
+	Ctx   context.Context
+	Repo  *repository.Queries
 }
 
 func (am AuthMiddleware) IsLoggedInEnriched() echo.MiddlewareFunc {
@@ -47,9 +50,10 @@ func (am AuthMiddleware) AuthRequired() echo.MiddlewareFunc {
 			}
 
 			// Try fetch the User information from the db
-			user, err := am.UserService.GetByProviderId(token.Subject())
+			//user, err := am.UserService.GetByProviderId(token.Subject())
+			user, err := am.Repo.FindUserByProviderID(am.Ctx, token.Subject())
 			if err != nil {
-				if errors.Is(err, models.NoUserFound) {
+				if errors.Is(err, sql.ErrNoRows) {
 					// Redirect to user setup flow
 					return c.Redirect(http.StatusTemporaryRedirect, "/user/setup")
 				}
@@ -57,7 +61,7 @@ func (am AuthMiddleware) AuthRequired() echo.MiddlewareFunc {
 				log2.Fatalf("Error fetching user from db: %s", err)
 			}
 
-			c.Set(UserIDKey, user)
+			c.Set(UserIDKey, &user)
 
 			return next(c)
 		}
