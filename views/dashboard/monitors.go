@@ -163,11 +163,11 @@ func NoMonitor() Node {
 
 func ViewMonitor(currentPath string, hankoApiUrl string, user *models.User, monitor *models.Monitor) Node {
 	props := layout.DashboardBaseProps{
-		Title:           "Monitor",
-		Description:     "",
-		CurrentPath:     currentPath,
-		HankoApiUrl:     hankoApiUrl,
-		User:            user,
+		Title:       "Monitor",
+		Description: "",
+		CurrentPath: currentPath,
+		HankoApiUrl: hankoApiUrl,
+		User:        user,
 		OptionalScripts: []Node{
 			Script(Defer(), Src("/static/js/view-monitor.js")),
 			Script(Src("https://cdn.jsdelivr.net/npm/apexcharts")),
@@ -177,24 +177,26 @@ func ViewMonitor(currentPath string, hankoApiUrl string, user *models.User, moni
 	return layout.DashboardBase(props,
 		Div(Class("flex flex-col items-center"),
 			// Header with URL, edit and delete buttons
-			Div(Class("flex justify-between items-center w-full p-4 "+components.FrostedBg),
+			Div(Class("flex justify-between items-center w-full p-4 "),
 				Div(Class("text-lg font-semibold"), Text(monitor.Url)),
 				Div(Class("flex gap-2"),
 					A(Href(fmt.Sprintf("/dashboard/monitors/%d/edit", monitor.Id)),
-						Class("px-4 py-2 bg-blue-500 text-white rounded-md"),
+						Class("flex flex-row items-center px-4 py-2 bg-blue-500 text-white rounded-md"),
+						lucide.Pencil(Class("-ml-0.5 mr-2 size-4")),
 						Text("Edit"),
 					),
 					Button(
-						Class("px-4 py-2 bg-red-500 text-white rounded-md"),
+						Class("flex flex-row items-center px-4 py-2 bg-red-500 text-white rounded-md"),
 						ID("delete-button"),
 						Data("monitor-id", fmt.Sprintf("%d", monitor.Id)),
+						lucide.Trash2(Class("-ml-0.5 mr-2 size-4")),
 						Text("Delete"),
 					),
 				),
 			),
 
 			// Latency graph container
-			Div(Class("w-full mt-4 p-4 "+components.FrostedBg),
+			Div(Class("w-full mt-8 p-8 rounded-xl "+components.FrostedBg),
 				Div(ID("latency-graph"), Class("w-full h-64")),
 			),
 		),
