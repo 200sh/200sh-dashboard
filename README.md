@@ -37,6 +37,12 @@ LOG_LEVEL="WARN" # WARN is the default level. Others: DEBUG, INFO, WARN, ERROR, 
 DEV="false" # false is the default. Setting to true will remove some caching making live reloading better.
 ```
 
+### Admin API Key
+To generate an admin api key for the dashboard, run the following command:
+```shell
+openssl rand -base64 32
+```
+
 ## Usage
 
 To start the 200sh Dashboard, run the following command:
@@ -51,6 +57,7 @@ with the command:
 ```shell
 air
 ```
+
 
 ## Contribution Guidelines
 
