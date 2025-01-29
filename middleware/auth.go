@@ -1,11 +1,10 @@
 package middleware
 
 import (
-	"context"
 	"database/sql"
 	"errors"
 	"github.com/200sh/200sh-dashboard/hanko"
-	"github.com/200sh/200sh-dashboard/internal/repository"
+	"github.com/200sh/200sh-dashboard/models/services"
 	"github.com/labstack/echo/v4"
 	log2 "github.com/labstack/gommon/log"
 	"net/http"
@@ -17,15 +16,21 @@ const (
 )
 
 type AuthMiddleware struct {
-	Hanko *hanko.Hanko
-	Ctx   context.Context
-	Repo  *repository.Queries
+	hanko       *hanko.Hanko
+	userService services.UserService
+}
+
+func NewAuthMiddleware(hankoClient *hanko.Hanko, userService services.UserService) *AuthMiddleware {
+	return &AuthMiddleware{
+		hanko:       hankoClient,
+		userService: userService,
+	}
 }
 
 func (am AuthMiddleware) IsLoggedInEnriched() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			_, err := am.Hanko.ValidateHankoCookie(c)
+			_, err := am.hanko.ValidateHankoCookie(c)
 			c.Set(IsLoggedInKey, err == nil)
 			return next(c)
 		}
@@ -39,7 +44,7 @@ func (am AuthMiddleware) IsLoggedInEnriched() echo.MiddlewareFunc {
 func (am AuthMiddleware) AuthRequired() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			token, err := am.Hanko.ValidateHankoCookie(c)
+			token, err := am.hanko.ValidateHankoCookie(c)
 			if errors.Is(err, http.ErrNoCookie) {
 				log2.Info("No 'hanko' cookie set")
 				return c.Redirect(http.StatusTemporaryRedirect, "/login")
@@ -50,8 +55,7 @@ func (am AuthMiddleware) AuthRequired() echo.MiddlewareFunc {
 			}
 
 			// Try fetch the User information from the db
-			//user, err := am.UserService.GetByProviderId(token.Subject())
-			user, err := am.Repo.FindUserByProviderID(am.Ctx, token.Subject())
+			user, err := am.userService.GetBySubjectID(token.Subject())
 			if err != nil {
 				if errors.Is(err, sql.ErrNoRows) {
 					// Redirect to user setup flow
@@ -61,7 +65,7 @@ func (am AuthMiddleware) AuthRequired() echo.MiddlewareFunc {
 				log2.Fatalf("Error fetching user from db: %s", err)
 			}
 
-			c.Set(UserIDKey, &user)
+			c.Set(UserIDKey, user)
 
 			return next(c)
 		}

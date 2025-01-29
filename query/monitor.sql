@@ -8,7 +8,7 @@ SELECT *
 FROM monitor
 WHERE user_id = ?;
 
--- name: GetMonitorByUserID :one
+-- name: GetMonitorByUserIDAndMonitorID :one
 SELECT *
 FROM monitor
 WHERE user_id = ?

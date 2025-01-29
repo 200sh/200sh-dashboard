@@ -1,8 +1,8 @@
 package auth
 
 import (
-	"github.com/200sh/200sh-dashboard/internal/repository"
 	"github.com/200sh/200sh-dashboard/middleware"
+	"github.com/200sh/200sh-dashboard/models"
 	"github.com/200sh/200sh-dashboard/views/dashboard"
 	"github.com/labstack/echo/v4"
 	log2 "github.com/labstack/gommon/log"
@@ -12,30 +12,30 @@ import (
 )
 
 func (h *Handler) HomeHandler(c echo.Context) error {
-	user := c.Get(middleware.UserIDKey).(*repository.User)
+	user := c.Get(middleware.UserIDKey).(*models.User)
 	if user == nil {
 		return c.Redirect(http.StatusTemporaryRedirect, "/login")
 	}
 
-	return dashboard.Home(c.Path(), h.Hanko.HankoApiUrl, user).Render(c.Response().Writer)
+	return dashboard.Home(c.Path(), h.hanko.HankoApiUrl, user).Render(c.Response().Writer)
 }
 
 func (h *Handler) MonitorsHandler(c echo.Context) error {
-	user := c.Get(middleware.UserIDKey).(*repository.User)
+	user := c.Get(middleware.UserIDKey).(*models.User)
 	if user == nil {
 		return c.Redirect(http.StatusTemporaryRedirect, "/login")
 	}
 
-	monitors, err := h.Repo.GetMonitorsByUserID(h.Ctx, user.ID)
+	monitors, err := h.monitorService.ListByUser(user.Id)
 	if err != nil {
 		return err
 	}
 
-	return dashboard.Monitor(c.Path(), h.Hanko.HankoApiUrl, user, monitors).Render(c.Response().Writer)
+	return dashboard.Monitor(c.Path(), h.hanko.HankoApiUrl, user, monitors).Render(c.Response().Writer)
 }
 
 func (h *Handler) ViewMonitorHandler(c echo.Context) error {
-	user := c.Get(middleware.UserIDKey).(*repository.User)
+	user := c.Get(middleware.UserIDKey).(*models.User)
 	if user == nil {
 		return c.Redirect(http.StatusTemporaryRedirect, "/login")
 	}
@@ -45,23 +45,20 @@ func (h *Handler) ViewMonitorHandler(c echo.Context) error {
 		return c.Redirect(http.StatusTemporaryRedirect, "/dashboard/monitors")
 	}
 
-	monitor, err := h.Repo.GetMonitorByUserID(h.Ctx, repository.GetMonitorByUserIDParams{
-		UserID: user.ID,
-		ID:     int64(id),
-	})
+	monitor, err := h.monitorService.GetByIDAndUser(id, user.Id)
 	if err != nil {
 		return c.Redirect(http.StatusTemporaryRedirect, "/dashboard/monitors")
 	}
 
-	return dashboard.ViewMonitor(c.Path(), h.Hanko.HankoApiUrl, user, &monitor).Render(c.Response().Writer)
+	return dashboard.ViewMonitor(c.Path(), h.hanko.HankoApiUrl, user, monitor).Render(c.Response().Writer)
 }
 
 func (h *Handler) NewMonitorHandler(c echo.Context) error {
-	user := c.Get(middleware.UserIDKey).(*repository.User)
+	user := c.Get(middleware.UserIDKey).(*models.User)
 	if user == nil {
 		return c.Redirect(http.StatusTemporaryRedirect, "/login")
 	}
-	return dashboard.NewMonitor(h.Hanko.HankoApiUrl, user).Render(c.Response().Writer)
+	return dashboard.NewMonitor(h.hanko.HankoApiUrl, user).Render(c.Response().Writer)
 }
 
 type NewMonitorForm struct {
@@ -75,7 +72,7 @@ func (h *Handler) NewMonitorFormHandler(c echo.Context) error {
 		return c.String(http.StatusBadRequest, "Not valid form")
 	}
 
-	user := c.Get(middleware.UserIDKey).(*repository.User)
+	user := c.Get(middleware.UserIDKey).(*models.User)
 	if user == nil {
 		return c.Redirect(http.StatusSeeOther, "/login")
 	}
@@ -91,10 +88,11 @@ func (h *Handler) NewMonitorFormHandler(c echo.Context) error {
 	}
 
 	// Create the new monitor object
-	_, err = h.Repo.CreateMonitor(h.Ctx, repository.CreateMonitorParams{
-		UserID: user.ID,
+	m := &models.Monitor{
+		UserId: user.Id,
 		Url:    mUrl.String(),
-	})
+	}
+	err = h.monitorService.Create(m)
 	if err != nil {
 		// TODO: Should add some error message to the form
 		return c.Redirect(http.StatusSeeOther, "/dashboard/monitors/new")

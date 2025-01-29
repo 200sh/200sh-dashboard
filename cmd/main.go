@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"github.com/200sh/200sh-dashboard/config"
 	"github.com/200sh/200sh-dashboard/database"
@@ -10,6 +9,7 @@ import (
 	"github.com/200sh/200sh-dashboard/hanko"
 	"github.com/200sh/200sh-dashboard/internal/repository"
 	middleware2 "github.com/200sh/200sh-dashboard/middleware"
+	"github.com/200sh/200sh-dashboard/models/services"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"log"
@@ -26,7 +26,6 @@ func main() {
 
 	// Database
 	fmt.Println("💽Loading database")
-	ctx := context.Background()
 	db, err := database.New(cfg.DatabaseName)
 	if err != nil {
 		log.Fatalf("Error creating database: %s\n", err)
@@ -47,13 +46,15 @@ func main() {
 	// Setup services
 	repo := repository.New(db)
 	hankoClient := hanko.New(cfg.HankoApiUrl)
+	userService := services.NewUserService(db, repo)
+	monitorService := services.NewMonitorService(db, repo)
 
 	// AuthMiddleware
-	am := middleware2.AuthMiddleware{Hanko: &hankoClient, Ctx: ctx, Repo: repo}
+	am := middleware2.NewAuthMiddleware(&hankoClient, userService)
 	e.Use(am.IsLoggedInEnriched())
 
 	// Setup handler
-	ah := auth.Handler{Hanko: &hankoClient, Ctx: ctx, Repo: repo}
+	ah := auth.NewHandler(&hankoClient, userService, monitorService)
 
 	// Setup routes
 	e.Static("/static", "public")
@@ -69,7 +70,7 @@ func main() {
 		})
 	}
 
-	handlers.SetupRoutes(e, &am, &ah)
+	handlers.SetupRoutes(e, am, ah)
 	handlers.SetupApi(e, &cfg)
 
 	// Start Server

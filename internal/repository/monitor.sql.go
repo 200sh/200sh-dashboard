@@ -33,20 +33,20 @@ func (q *Queries) CreateMonitor(ctx context.Context, arg CreateMonitorParams) (M
 	return i, err
 }
 
-const getMonitorByUserID = `-- name: GetMonitorByUserID :one
+const getMonitorByUserIDAndMonitorID = `-- name: GetMonitorByUserIDAndMonitorID :one
 SELECT id, user_id, url, created_at, updated_at
 FROM monitor
 WHERE user_id = ?
   and id = ?
 `
 
-type GetMonitorByUserIDParams struct {
+type GetMonitorByUserIDAndMonitorIDParams struct {
 	UserID int64 `json:"user_id"`
 	ID     int64 `json:"id"`
 }
 
-func (q *Queries) GetMonitorByUserID(ctx context.Context, arg GetMonitorByUserIDParams) (Monitor, error) {
-	row := q.db.QueryRowContext(ctx, getMonitorByUserID, arg.UserID, arg.ID)
+func (q *Queries) GetMonitorByUserIDAndMonitorID(ctx context.Context, arg GetMonitorByUserIDAndMonitorIDParams) (Monitor, error) {
+	row := q.db.QueryRowContext(ctx, getMonitorByUserIDAndMonitorID, arg.UserID, arg.ID)
 	var i Monitor
 	err := row.Scan(
 		&i.ID,
