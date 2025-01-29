@@ -15,5 +15,7 @@ WHERE user_id = ?
   and id = ?;
 
 -- name: DeleteMonitor :exec
-DELETE FROM monitor
-WHERE id = ? AND user_id = ?;
+DELETE
+FROM monitor
+WHERE id = ?
+  AND user_id = ?;

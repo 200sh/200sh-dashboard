@@ -113,6 +113,12 @@ func (h *Handler) DeleteMonitorHandler(c echo.Context) error {
 		return c.Redirect(http.StatusTemporaryRedirect, "/dashboard/monitors")
 	}
 
+	// Check if the user owns this monitor
+	monitor, err := h.monitorService.GetByIDAndUser(id, user.Id)
+	if monitor == nil {
+		return c.Redirect(http.StatusTemporaryRedirect, "/dashboard/monitors")
+	}
+
 	if err := h.monitorService.Delete(id, user.Id); err != nil {
 		log2.Errorf("Failed to delete monitor: %v", err)
 	}

@@ -33,6 +33,23 @@ func (q *Queries) CreateMonitor(ctx context.Context, arg CreateMonitorParams) (M
 	return i, err
 }
 
+const deleteMonitor = `-- name: DeleteMonitor :exec
+DELETE
+FROM monitor
+WHERE id = ?
+  AND user_id = ?
+`
+
+type DeleteMonitorParams struct {
+	ID     int64 `json:"id"`
+	UserID int64 `json:"user_id"`
+}
+
+func (q *Queries) DeleteMonitor(ctx context.Context, arg DeleteMonitorParams) error {
+	_, err := q.db.ExecContext(ctx, deleteMonitor, arg.ID, arg.UserID)
+	return err
+}
+
 const getMonitorByUserIDAndMonitorID = `-- name: GetMonitorByUserIDAndMonitorID :one
 SELECT id, user_id, url, created_at, updated_at
 FROM monitor

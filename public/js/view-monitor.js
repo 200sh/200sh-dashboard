@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
     deleteButton.addEventListener('click', function() {
         const confirmation = confirm('Are you sure you want to delete this monitor?');
         if (confirmation) {
-            fetch(`/dashboard/monitors/${monitorId}/delete`, {
+            fetch(`/dashboard/monitors/${monitorId}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json'
