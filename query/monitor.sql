@@ -1,19 +1,19 @@
 -- name: CreateMonitor :one
 INSERT INTO monitor(user_id, url)
-VALUES (?, ?)
+VALUES ($1, $2)
 RETURNING *;
 
 -- name: GetMonitorsByUserID :many
 SELECT *
 FROM monitor
-WHERE user_id = ?;
+WHERE user_id = $1;
 
 -- name: GetMonitorByUserIDAndMonitorID :one
 SELECT *
 FROM monitor
-WHERE user_id = ?
-  and id = ?;
+WHERE user_id = $1
+  and id = $2;
 
 -- name: DeleteMonitor :exec
 DELETE FROM monitor
-WHERE id = ? AND user_id = ?;
+WHERE id = $1 AND user_id = $2;
