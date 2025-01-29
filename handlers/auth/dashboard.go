@@ -101,3 +101,21 @@ func (h *Handler) NewMonitorFormHandler(c echo.Context) error {
 	// TODO: Should have some some success toast?
 	return c.Redirect(http.StatusSeeOther, "/dashboard/monitors")
 }
+
+func (h *Handler) DeleteMonitorHandler(c echo.Context) error {
+	user := c.Get(middleware.UserIDKey).(*models.User)
+	if user == nil {
+		return c.Redirect(http.StatusTemporaryRedirect, "/login")
+	}
+
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return c.Redirect(http.StatusTemporaryRedirect, "/dashboard/monitors")
+	}
+
+	if err := h.monitorService.Delete(id, user.Id); err != nil {
+		log2.Errorf("Failed to delete monitor: %v", err)
+	}
+
+	return c.Redirect(http.StatusSeeOther, "/dashboard/monitors")
+}
