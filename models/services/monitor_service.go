@@ -60,8 +60,14 @@ func (s *monitorService) Create(m *models.Monitor) error {
 		Url:    m.Url,
 	}
 
-	_, err := s.repo.CreateMonitor(context.Background(), params)
-	return err
+	dbMonitor, err := s.repo.CreateMonitor(context.Background(), params)
+	if err != nil {
+		return err
+	}
+
+	// Update the input monitor with the database values
+	*m = *models.FromDBMonitor(dbMonitor)
+	return nil
 }
 
 func (s *monitorService) Delete(monitorID int, userID int64) error {
