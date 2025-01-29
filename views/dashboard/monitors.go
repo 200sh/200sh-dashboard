@@ -10,7 +10,7 @@ import (
 	. "maragu.dev/gomponents/html"
 )
 
-func Monitor(currentPath string, hankoApiUrl string, user *models.User, monitors []models.Monitor) Node {
+func Monitor(currentPath string, hankoApiUrl string, user *models.User, monitors []*models.Monitor) Node {
 	props := layout.DashboardBaseProps{
 		Title:           "Monitors",
 		Description:     "All uptime monitors",
@@ -72,7 +72,7 @@ func NewMonitor(hankoApiUrl string, user *models.User) Node {
 	)
 }
 
-func ListMonitors(monitors []models.Monitor) Node {
+func ListMonitors(monitors []*models.Monitor) Node {
 	return Div(Class("min-w-96"),
 		// Heading
 		Div(Class("-ml-4 -mt-2 flex flex-wrap items-center justify-between sm:flex-nowrap"),
@@ -91,14 +91,18 @@ func ListMonitors(monitors []models.Monitor) Node {
 		Ul(
 			Role("list"),
 			Class("mt-8 divide-y divide-gray-100"),
-			Map(monitors, func(m models.Monitor) Node {
+			Map(monitors, func(m *models.Monitor) Node {
 				return MonitorListItem(m)
 			}),
 		),
 	)
 }
 
-func MonitorListItem(monitor models.Monitor) Node {
+func MonitorListItem(monitor *models.Monitor) Node {
+	if monitor == nil {
+		return nil
+	}
+
 	return Li(
 		Class("relative flex justify-between gap-x-6 rounded-lg px-4 py-5 hover:bg-primary/60 sm:px-6 lg:px-8"),
 		Div(

@@ -1,9 +1,11 @@
 package models
 
 import (
-	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/200sh/200sh-dashboard/internal/repository"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -35,7 +37,7 @@ func UserStatusFromString(status string) (UserStatus, error) {
 }
 
 type User struct {
-	Id         int
+	Id         int64
 	ProviderId string
 	Provider   string
 	Email      string
@@ -45,136 +47,35 @@ type User struct {
 	UpdatedAt  time.Time
 }
 
-type UserService struct {
-	db *sql.DB
-}
-
-func NewUserService(db *sql.DB) UserService {
-	return UserService{db: db}
-}
-
-var NoUserFound = errors.New("user: no user found")
-
-func (s *UserService) GetByProviderId(id string) (*User, error) {
-	// Try to fetch the user from the db given a provider id
-	row := s.db.QueryRow(
-		`SELECT id, provider_id, provider, name, email, status, created_at, updated_at FROM user WHERE provider_id = ?`,
-		id,
-	)
-
-	var user User
-
-	err := row.Scan(
-		&user.Id,
-		&user.ProviderId,
-		&user.Provider,
-		&user.Name,
-		&user.Email,
-		&user.Status,
-		&user.CreatedAt,
-		&user.UpdatedAt,
-	)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, NoUserFound
-		}
-		return nil, err
+func (u *User) Validate() error {
+	if u.Email == "" {
+		return errors.New("user email cannot be empty")
 	}
-
-	return &user, nil
-}
-
-func (s *UserService) CreateUser(user *User) error {
-	stmt, err := s.db.Prepare(`
-	INSERT INTO user (provider_id, provider, name, email, status, created_at) 
-	VALUES (?, ?, ?, ?, ?, ?)
-`)
-	if err != nil {
-		return err
+	if !strings.Contains(u.Email, "@") {
+		return errors.New("invalid email format")
 	}
-
-	_, err = stmt.Exec(user.ProviderId, user.Provider, user.Name, user.Email, user.Status, user.CreatedAt)
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
-func (s *UserService) CreateMonitor(monitor *Monitor) error {
-	stmt, err := s.db.Prepare(`
-	INSERT INTO monitor (user_id, url) VALUES (?, ?)
-`)
-	if err != nil {
-		return err
-	}
-
-	_, err = stmt.Exec(monitor.UserId, monitor.Url)
-	if err != nil {
-		return err
-	}
-
-	return nil
+func (u *User) Activate() {
+	u.Status = UserStatusActive
+	u.UpdatedAt = time.Now()
 }
 
-func (s *UserService) GetMonitors(user *User) ([]Monitor, error) {
-	stmt, err := s.db.Prepare(`
-	SELECT id, user_id, url, created_at, updated_at FROM monitor WHERE user_id = ?
-`)
-	if err != nil {
-		return nil, err
-	}
-
-	rows, err := stmt.Query(user.Id)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	monitors := make([]Monitor, 0)
-
-	for rows.Next() {
-		var monitor Monitor
-		err = rows.Scan(
-			&monitor.Id,
-			&monitor.UserId,
-			&monitor.Url,
-			&monitor.CreatedAt,
-			&monitor.UpdatedAt,
-		)
-		if err != nil {
-			return nil, err
-		}
-
-		monitors = append(monitors, monitor)
-	}
-
-	return monitors, nil
+func (u *User) IsActive() bool {
+	return u.Status == UserStatusActive
 }
 
-// GetMonitor Fetches the monitor by the given id if it exists for that user
-func (s *UserService) GetMonitor(id int, user *User) (*Monitor, error) {
-	stmt, err := s.db.Prepare(`
-	SELECT id, user_id, url, created_at, updated_at FROM monitor WHERE id = ? AND user_id = ?
-`)
-	if err != nil {
-		return nil, err
+func FromDBUser(dbUser repository.User) *User {
+	status, _ := UserStatusFromString(strconv.Itoa(int(dbUser.Status)))
+	return &User{
+		Id:         dbUser.ID,
+		ProviderId: dbUser.ProviderID,
+		Provider:   dbUser.Provider,
+		Email:      dbUser.Email,
+		Name:       dbUser.Name,
+		Status:     status,
+		CreatedAt:  dbUser.CreatedAt.Time,
+		UpdatedAt:  dbUser.UpdatedAt.Time,
 	}
-
-	row := stmt.QueryRow(id, user.Id)
-
-	var monitor Monitor
-
-	err = row.Scan(
-		&monitor.Id,
-		&monitor.UserId,
-		&monitor.Url,
-		&monitor.CreatedAt,
-		&monitor.UpdatedAt,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	return &monitor, nil
 }

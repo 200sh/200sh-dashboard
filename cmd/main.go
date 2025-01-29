@@ -7,8 +7,9 @@ import (
 	"github.com/200sh/200sh-dashboard/handlers"
 	"github.com/200sh/200sh-dashboard/handlers/auth"
 	"github.com/200sh/200sh-dashboard/hanko"
+	"github.com/200sh/200sh-dashboard/internal/repository"
 	middleware2 "github.com/200sh/200sh-dashboard/middleware"
-	"github.com/200sh/200sh-dashboard/models"
+	"github.com/200sh/200sh-dashboard/models/services"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"log"
@@ -43,15 +44,17 @@ func main() {
 	e.Logger.SetLevel(cfg.LogLevel)
 
 	// Setup services
-	us := models.NewUserService(db)
+	repo := repository.New(db)
 	hankoClient := hanko.New(cfg.HankoApiUrl)
+	userService := services.NewUserService(db, repo)
+	monitorService := services.NewMonitorService(db, repo)
 
 	// AuthMiddleware
-	am := middleware2.AuthMiddleware{Hanko: &hankoClient, UserService: us}
+	am := middleware2.NewAuthMiddleware(&hankoClient, userService)
 	e.Use(am.IsLoggedInEnriched())
 
 	// Setup handler
-	ah := auth.Handler{Hanko: &hankoClient, UserService: us}
+	ah := auth.NewHandler(&hankoClient, userService, monitorService)
 
 	// Setup routes
 	e.Static("/static", "public")
@@ -67,7 +70,7 @@ func main() {
 		})
 	}
 
-	handlers.SetupRoutes(e, &am, &ah)
+	handlers.SetupRoutes(e, am, ah)
 	handlers.SetupApi(e, &cfg)
 
 	// Start Server

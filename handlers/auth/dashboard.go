@@ -17,7 +17,7 @@ func (h *Handler) HomeHandler(c echo.Context) error {
 		return c.Redirect(http.StatusTemporaryRedirect, "/login")
 	}
 
-	return dashboard.Home(c.Path(), h.Hanko.HankoApiUrl, user).Render(c.Response().Writer)
+	return dashboard.Home(c.Path(), h.hanko.HankoApiUrl, user).Render(c.Response().Writer)
 }
 
 func (h *Handler) MonitorsHandler(c echo.Context) error {
@@ -26,25 +26,15 @@ func (h *Handler) MonitorsHandler(c echo.Context) error {
 		return c.Redirect(http.StatusTemporaryRedirect, "/login")
 	}
 
-	monitors, err := h.UserService.GetMonitors(user)
+	monitors, err := h.monitorService.ListByUser(user.Id)
 	if err != nil {
 		return err
 	}
 
-	return dashboard.Monitor(c.Path(), h.Hanko.HankoApiUrl, user, monitors).Render(c.Response().Writer)
+	return dashboard.Monitor(c.Path(), h.hanko.HankoApiUrl, user, monitors).Render(c.Response().Writer)
 }
 
-//type MonitorQueryParam struct {
-//	Id string `param:"id"`
-//}
-
 func (h *Handler) ViewMonitorHandler(c echo.Context) error {
-	//var mqp MonitorQueryParam
-	//err := c.Bind(mqp)
-	//if err != nil {
-	//	return c.String(http.StatusBadRequest, "Not valid ID")
-	//}
-
 	user := c.Get(middleware.UserIDKey).(*models.User)
 	if user == nil {
 		return c.Redirect(http.StatusTemporaryRedirect, "/login")
@@ -55,12 +45,12 @@ func (h *Handler) ViewMonitorHandler(c echo.Context) error {
 		return c.Redirect(http.StatusTemporaryRedirect, "/dashboard/monitors")
 	}
 
-	monitor, err := h.UserService.GetMonitor(id, user)
+	monitor, err := h.monitorService.GetByIDAndUser(id, user.Id)
 	if err != nil {
 		return c.Redirect(http.StatusTemporaryRedirect, "/dashboard/monitors")
 	}
 
-	return dashboard.ViewMonitor(c.Path(), h.Hanko.HankoApiUrl, user, monitor).Render(c.Response().Writer)
+	return dashboard.ViewMonitor(c.Path(), h.hanko.HankoApiUrl, user, monitor).Render(c.Response().Writer)
 }
 
 func (h *Handler) NewMonitorHandler(c echo.Context) error {
@@ -68,7 +58,7 @@ func (h *Handler) NewMonitorHandler(c echo.Context) error {
 	if user == nil {
 		return c.Redirect(http.StatusTemporaryRedirect, "/login")
 	}
-	return dashboard.NewMonitor(h.Hanko.HankoApiUrl, user).Render(c.Response().Writer)
+	return dashboard.NewMonitor(h.hanko.HankoApiUrl, user).Render(c.Response().Writer)
 }
 
 type NewMonitorForm struct {
@@ -98,11 +88,11 @@ func (h *Handler) NewMonitorFormHandler(c echo.Context) error {
 	}
 
 	// Create the new monitor object
-	monitor := user.NewMonitor(mUrl)
-
-	log2.Info("New Monitor: ", monitor)
-
-	err = h.UserService.CreateMonitor(&monitor)
+	m := &models.Monitor{
+		UserId: user.Id,
+		Url:    mUrl.String(),
+	}
+	err = h.monitorService.Create(m)
 	if err != nil {
 		// TODO: Should add some error message to the form
 		return c.Redirect(http.StatusSeeOther, "/dashboard/monitors/new")
