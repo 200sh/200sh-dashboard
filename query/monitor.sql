@@ -1,15 +1,15 @@
 -- name: CreateMonitor :one
 INSERT INTO monitor(user_id, url)
 VALUES ($1, $2)
-RETURNING *;
+RETURNING id, user_id, url, created_at, updated_at;
 
 -- name: GetMonitorsByUserID :many
-SELECT *
+SELECT id, user_id, url, created_at, updated_at
 FROM monitor
 WHERE user_id = $1;
 
 -- name: GetMonitorByUserIDAndMonitorID :one
-SELECT *
+SELECT id, user_id, url, created_at, updated_at
 FROM monitor
 WHERE user_id = $1
   and id = $2;
