@@ -181,6 +181,7 @@ func ViewMonitor(currentPath string, hankoApiUrl string, user *models.User, moni
 
 	return layout.DashboardBase(props,
 		Div(Class("flex flex-col items-center"),
+			x.Data("{ showDeleteModal: false }"),
 			// Header with URL, edit and delete buttons
 			Div(Class("flex justify-between items-center w-full p-4 "),
 				Div(Class("text-lg font-semibold"), Text(monitor.Url)),
@@ -194,7 +195,6 @@ func ViewMonitor(currentPath string, hankoApiUrl string, user *models.User, moni
 						Class("flex flex-row items-center px-4 py-2 bg-red-500 text-white rounded-md"),
 						ID("delete-button"),
 						Data("monitor-id", fmt.Sprintf("%d", monitor.Id)),
-						x.Data("{showDeleteModal: false}"),
 						x.On("click", "showDeleteModal = true"),
 						lucide.Trash2(Class("-ml-0.5 mr-2 size-4")),
 						Text("Delete"),
