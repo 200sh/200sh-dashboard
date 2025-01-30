@@ -1,6 +1,7 @@
 package components
 
 import (
+	x "github.com/glsubri/gomponents-alpine"
 	. "maragu.dev/gomponents"
 	. "maragu.dev/gomponents/html"
 )
