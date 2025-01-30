@@ -1,0 +1,7 @@
+- We use `sqlc` to generate functions from sql queries.
+  - Which means do not edit any files in the older `internal/repository/`
+  - If adding new sql query functions add them in `query/` folder in the related file
+  - The code is then generated using `sqlc generate`
+- Use `sqlite` as the database so all query should work with `sqlite` dialect
+- Uses goose for database migrations, which are run automatically on startup
+  - Migrations are placed in `database/migrations` and uses a incremental number for each migration

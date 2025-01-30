@@ -20,47 +20,6 @@ type Handler struct {
 	monitorService services.MonitorService
 }
 
-type ProfileForm struct {
-	Name  string `form:"name"`
-	Email string `form:"email"`
-}
-
-func (h *Handler) ProfileFormHandler(c echo.Context) error {
-	user := c.Get("user").(*models.User)
-	originalEmail := user.Email
-	
-	var form ProfileForm
-	if err := c.Bind(&form); err != nil {
-		return c.String(http.StatusBadRequest, "Invalid form data")
-	}
-
-	// Update temp values
-	user.Name = form.Name
-	user.Email = form.Email
-
-	if err := h.userService.Update(user); err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return c.String(http.StatusNotFound, "User not found")
-		}
-		if strings.Contains(err.Error(), "UNIQUE constraint failed: users.email") {
-			user.Email = originalEmail // Restore original email
-			return renderProfilePage(c, h.hanko.HankoApiUrl, user, "Email is already in use")
-		}
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-	}
-
-	return c.Redirect(http.StatusSeeOther, "/dashboard/profile")
-}
-
-func renderProfilePage(c echo.Context, hankoUrl string, user *models.User, errorMsg string) error {
-	return dashboard.Profile(
-		c.Request().URL.Path, 
-		hankoUrl, 
-		user,
-		errorMsg,
-	).Render(c.Response().Writer)
-}
-
 func NewHandler(hankoClient *hanko.Hanko, userService services.UserService, monitorService services.MonitorService) *Handler {
 	return &Handler{
 		hanko:          hankoClient,

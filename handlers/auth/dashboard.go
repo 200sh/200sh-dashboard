@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"fmt"
 	"github.com/200sh/200sh-dashboard/middleware"
 	"github.com/200sh/200sh-dashboard/models"
 	"github.com/200sh/200sh-dashboard/views/dashboard"

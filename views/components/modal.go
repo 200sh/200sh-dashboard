@@ -6,8 +6,6 @@ import (
 	. "maragu.dev/gomponents/html"
 )
 
-const FrostedBg = "backdrop-blur-lg bg-white/10 shadow-lg ring-1 ring-black/5"
-
 func DeleteConfirmationModal(extraClasses string, content Node) Node {
 	return Div(
 		Class("relative z-10"),

@@ -3,8 +3,10 @@ package services
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"github.com/200sh/200sh-dashboard/internal/repository"
 	"github.com/200sh/200sh-dashboard/models"
+	"strings"
 )
 
 type UserService interface {
