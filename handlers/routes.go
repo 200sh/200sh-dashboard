@@ -18,6 +18,8 @@ func SetupRoutes(e *echo.Echo, am *middleware.AuthMiddleware, ah *auth.Handler) 
 	aq.GET("/monitors", ah.MonitorsHandler)
 	aq.GET("/monitors/:id", ah.ViewMonitorHandler)
 	aq.DELETE("/monitors/:id", ah.DeleteMonitorHandler)
+	aq.GET("/monitors/:id/edit", ah.EditMonitorHandler)
+	aq.POST("/monitors/:id/edit", ah.EditMonitorFormHandler)
 	aq.GET("/monitors/new", ah.NewMonitorHandler)
 	aq.POST("/monitors/new", ah.NewMonitorFormHandler)
 

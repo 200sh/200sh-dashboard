@@ -166,6 +166,43 @@ func NoMonitor() Node {
 	)
 }
 
+func EditMonitor(currentPath string, hankoApiUrl string, user *models.User, monitor *models.Monitor) Node {
+	props := layout.DashboardBaseProps{
+		Title:       "Edit Monitor",
+		Description: "Update your website monitor",
+		CurrentPath: currentPath,
+		HankoApiUrl: hankoApiUrl,
+		User:        user,
+		OptionalScripts: []Node{
+			Script(Defer(), Src("/static/js/forms.js")),
+			Script(Defer(), Src("/static/js/edit-monitor.js")),
+		},
+	}
+
+	return layout.DashboardBase(props,
+		components.Card(
+			components.StyledForm(components.StyledFormProps{
+				Action:       fmt.Sprintf("/dashboard/monitors/%d/edit", monitor.Id),
+				CancelButton: []Node{Text("Cancel"), Data("link", fmt.Sprintf("/dashboard/monitors/%d", monitor.Id))},
+				SubmitButton: []Node{Text("Save Changes")},
+			}, "post",
+				components.StyledFormSection(
+					components.StyledFormSectionH2("Monitor Details"),
+					components.StyledInput(components.StyledInputProps{
+						Type:        "url",
+						Name:        "monitor-url",
+						ID:          "monitor-url",
+						Label:       "Website URL",
+						Value:       monitor.Url,
+						Required:    true,
+						Placeholder: "https://example.com",
+					}),
+				),
+			),
+		),
+	)
+}
+
 func ViewMonitor(currentPath string, hankoApiUrl string, user *models.User, monitor *models.Monitor) Node {
 	props := layout.DashboardBaseProps{
 		Title:       "Monitor",

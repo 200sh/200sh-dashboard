@@ -19,3 +19,9 @@ DELETE
 FROM monitor
 WHERE id = ?
   AND user_id = ?;
+
+-- name: UpdateMonitor :one
+UPDATE monitor
+SET url = ?, updated_at = CURRENT_TIMESTAMP
+WHERE id = ? AND user_id = ?
+RETURNING *;

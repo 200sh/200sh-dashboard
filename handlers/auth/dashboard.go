@@ -102,6 +102,70 @@ func (h *Handler) NewMonitorFormHandler(c echo.Context) error {
 	return c.Redirect(http.StatusSeeOther, "/dashboard/monitors")
 }
 
+func (h *Handler) EditMonitorHandler(c echo.Context) error {
+	user := c.Get(middleware.UserIDKey).(*models.User)
+	if user == nil {
+		return c.Redirect(http.StatusTemporaryRedirect, "/login")
+	}
+
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return c.Redirect(http.StatusTemporaryRedirect, "/dashboard/monitors")
+	}
+
+	monitor, err := h.monitorService.GetByIDAndUser(id, user.Id)
+	if err != nil {
+		return c.Redirect(http.StatusTemporaryRedirect, "/dashboard/monitors")
+	}
+
+	return dashboard.EditMonitor(c.Path(), h.hanko.HankoApiUrl, user, monitor).Render(c.Response().Writer)
+}
+
+type EditMonitorForm struct {
+	Url string `form:"monitor-url"`
+}
+
+func (h *Handler) EditMonitorFormHandler(c echo.Context) error {
+	var emf EditMonitorForm
+	if err := c.Bind(&emf); err != nil {
+		return c.String(http.StatusBadRequest, "Invalid form data")
+	}
+
+	user := c.Get(middleware.UserIDKey).(*models.User)
+	if user == nil {
+		return c.Redirect(http.StatusSeeOther, "/login")
+	}
+
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return c.Redirect(http.StatusTemporaryRedirect, "/dashboard/monitors")
+	}
+
+	// Get existing monitor to verify ownership
+	existing, err := h.monitorService.GetByIDAndUser(id, user.Id)
+	if err != nil {
+		return c.Redirect(http.StatusTemporaryRedirect, "/dashboard/monitors")
+	}
+
+	// Update with validation
+	m := &models.Monitor{
+		Id:        existing.Id,
+		UserId:    user.Id,
+		Url:       emf.Url,
+		CreatedAt: existing.CreatedAt,
+	}
+	if err := m.Validate(); err != nil {
+		return c.Redirect(http.StatusSeeOther, fmt.Sprintf("/dashboard/monitors/%d/edit", id))
+	}
+
+	if err := h.monitorService.Update(m); err != nil {
+		log2.Errorf("Failed to update monitor: %v", err)
+		return c.Redirect(http.StatusSeeOther, fmt.Sprintf("/dashboard/monitors/%d/edit", id))
+	}
+
+	return c.Redirect(http.StatusSeeOther, fmt.Sprintf("/dashboard/monitors/%d", id))
+}
+
 func (h *Handler) DeleteMonitorHandler(c echo.Context) error {
 	user := c.Get(middleware.UserIDKey).(*models.User)
 	if user == nil {
