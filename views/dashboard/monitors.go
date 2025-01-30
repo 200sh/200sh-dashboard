@@ -6,6 +6,7 @@ import (
 	"github.com/200sh/200sh-dashboard/views/components"
 	"github.com/200sh/200sh-dashboard/views/layout"
 	lucide "github.com/eduardolat/gomponents-lucide"
+	x "github.com/glsubri/gomponents-alpine"
 	. "maragu.dev/gomponents"
 	. "maragu.dev/gomponents/html"
 )
@@ -32,9 +33,6 @@ func Monitor(currentPath string, hankoApiUrl string, user *models.User, monitors
 			Div(Class("w-fit"),
 				components.Card(cardComp),
 			),
-
-			// Add modal at end of container
-			components.DeleteConfirmationModal(),
 		),
 	)
 }
@@ -196,8 +194,8 @@ func ViewMonitor(currentPath string, hankoApiUrl string, user *models.User, moni
 						Class("flex flex-row items-center px-4 py-2 bg-red-500 text-white rounded-md"),
 						ID("delete-button"),
 						Data("monitor-id", fmt.Sprintf("%d", monitor.Id)),
-						XData("{showDeleteModal: false}"),
-						Click("showDeleteModal = true"),
+						x.Data("{showDeleteModal: false}"),
+						x.On("click", "showDeleteModal = true"),
 						lucide.Trash2(Class("-ml-0.5 mr-2 size-4")),
 						Text("Delete"),
 					),
@@ -208,6 +206,8 @@ func ViewMonitor(currentPath string, hankoApiUrl string, user *models.User, moni
 			Div(Class("w-full mt-8 p-8 rounded-xl "+components.FrostedBg),
 				Div(ID("latency-graph"), Class("w-full h-64")),
 			),
+			// Add modal at end of container
+			components.DeleteConfirmationModal("", Text("Are you sure you want to delete this monitor?")),
 		),
 	)
 }

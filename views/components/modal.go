@@ -1,13 +1,14 @@
 package components
 
 import (
+	. "maragu.dev/gomponents"
 	. "maragu.dev/gomponents/html"
 )
 
-func DeleteConfirmationModal(extraClasses Class, content Node, dataAttributes ...Attribute) Node {
+func DeleteConfirmationModal(extraClasses string, content Node) Node {
 	return Div(
 		Class("relative z-10 hidden"),
-		DataAttr("dialog", ""),
+		Data("dialog", ""),
 		Div(
 			Class("fixed inset-0 bg-black/25 transition-opacity"),
 		),
@@ -21,9 +22,7 @@ func DeleteConfirmationModal(extraClasses Class, content Node, dataAttributes ..
 						Class("bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4"),
 						Div(
 							Class("flex items-center justify-center mx-auto h-12 w-12 bg-red-100 rounded-full"),
-							Children{
-								Text("!"),
-							},
+							content,
 						),
 						Div(
 							Class("mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left"),
