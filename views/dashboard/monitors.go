@@ -207,7 +207,7 @@ func ViewMonitor(currentPath string, hankoApiUrl string, user *models.User, moni
 				Div(ID("latency-graph"), Class("w-full h-64")),
 			),
 			// Add modal at end of container
-			components.DeleteConfirmationModal("", Text("Are you sure you want to delete this monitor?")),
+			components.DeleteConfirmationModal("", lucide.Trash2()),
 		),
 	)
 }
