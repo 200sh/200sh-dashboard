@@ -48,12 +48,19 @@ type User struct {
 }
 
 func (u *User) Validate() error {
-	if u.Email == "" {
-		return errors.New("user email cannot be empty")
+	email := strings.TrimSpace(u.Email)
+	if email == "" || !strings.Contains(email, "@") {
+		return errors.New("valid email address required")
 	}
-	if !strings.Contains(u.Email, "@") {
-		return errors.New("invalid email format")
+
+	name := strings.TrimSpace(u.Name)
+	switch {
+	case len(name) == 0:
+		return errors.New("name cannot be empty")
+	case len(name) > 100:
+		return errors.New("name must be 100 characters or less")
 	}
+	
 	return nil
 }
 

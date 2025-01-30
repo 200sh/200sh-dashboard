@@ -15,6 +15,8 @@ func SetupRoutes(e *echo.Echo, am *middleware.AuthMiddleware, ah *auth.Handler) 
 	// Auth Required routes
 	aq := e.Group("/dashboard", am.AuthRequired())
 	aq.GET("", ah.HomeHandler)
+	aq.GET("/profile", ah.ProfileHandler)
+	aq.POST("/profile", ah.ProfileFormHandler)
 	aq.GET("/monitors", ah.MonitorsHandler)
 	aq.GET("/monitors/:id", ah.ViewMonitorHandler)
 	aq.DELETE("/monitors/:id", ah.DeleteMonitorHandler)
