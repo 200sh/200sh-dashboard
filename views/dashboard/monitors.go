@@ -6,6 +6,7 @@ import (
 	"github.com/200sh/200sh-dashboard/views/components"
 	"github.com/200sh/200sh-dashboard/views/layout"
 	lucide "github.com/eduardolat/gomponents-lucide"
+	x "github.com/glsubri/gomponents-alpine"
 	. "maragu.dev/gomponents"
 	. "maragu.dev/gomponents/html"
 )
@@ -165,6 +166,43 @@ func NoMonitor() Node {
 	)
 }
 
+func EditMonitor(currentPath string, hankoApiUrl string, user *models.User, monitor *models.Monitor) Node {
+	props := layout.DashboardBaseProps{
+		Title:       "Edit Monitor",
+		Description: "Update your website monitor",
+		CurrentPath: currentPath,
+		HankoApiUrl: hankoApiUrl,
+		User:        user,
+		OptionalScripts: []Node{
+			Script(Defer(), Src("/static/js/forms.js")),
+			Script(Defer(), Src("/static/js/edit-monitor.js")),
+		},
+	}
+
+	return layout.DashboardBase(props,
+		components.Card(
+			components.StyledForm(components.StyledFormProps{
+				Action:       fmt.Sprintf("/dashboard/monitors/%d/edit", monitor.Id),
+				CancelButton: []Node{Text("Cancel"), Data("link", fmt.Sprintf("/dashboard/monitors/%d", monitor.Id))},
+				SubmitButton: []Node{Text("Save Changes")},
+			}, "post",
+				components.StyledFormSection(
+					components.StyledFormSectionH2("Monitor Details"),
+					components.StyledInput(components.StyledInputProps{
+						Type:        "url",
+						Name:        "monitor-url",
+						ID:          "monitor-url",
+						Label:       "Website URL",
+						Value:       monitor.Url,
+						Required:    true,
+						Placeholder: "https://example.com",
+					}),
+				),
+			),
+		),
+	)
+}
+
 func ViewMonitor(currentPath string, hankoApiUrl string, user *models.User, monitor *models.Monitor) Node {
 	props := layout.DashboardBaseProps{
 		Title:       "Monitor",
@@ -180,6 +218,7 @@ func ViewMonitor(currentPath string, hankoApiUrl string, user *models.User, moni
 
 	return layout.DashboardBase(props,
 		Div(Class("flex flex-col items-center"),
+			x.Data("{ showDeleteModal: false }"),
 			// Header with URL, edit and delete buttons
 			Div(Class("flex justify-between items-center w-full p-4 "),
 				Div(Class("text-lg font-semibold"), Text(monitor.Url)),
@@ -193,6 +232,7 @@ func ViewMonitor(currentPath string, hankoApiUrl string, user *models.User, moni
 						Class("flex flex-row items-center px-4 py-2 bg-red-500 text-white rounded-md"),
 						ID("delete-button"),
 						Data("monitor-id", fmt.Sprintf("%d", monitor.Id)),
+						x.On("click", "showDeleteModal = true"),
 						lucide.Trash2(Class("-ml-0.5 mr-2 size-4")),
 						Text("Delete"),
 					),
@@ -203,6 +243,8 @@ func ViewMonitor(currentPath string, hankoApiUrl string, user *models.User, moni
 			Div(Class("w-full mt-8 p-8 rounded-xl "+components.FrostedBg),
 				Div(ID("latency-graph"), Class("w-full h-64")),
 			),
+			// Add modal at end of container
+			components.DeleteConfirmationModal("", lucide.Trash2()),
 		),
 	)
 }

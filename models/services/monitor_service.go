@@ -12,6 +12,7 @@ type MonitorService interface {
 	ListByUser(userID int64) ([]*models.Monitor, error)
 	GetByIDAndUser(id int, userID int64) (*models.Monitor, error)
 	Delete(monitorID int, userID int64) error
+	Update(m *models.Monitor) error
 }
 
 type monitorService struct {
@@ -76,4 +77,18 @@ func (s *monitorService) Delete(monitorID int, userID int64) error {
 		UserID: userID,
 	}
 	return s.repo.DeleteMonitor(context.Background(), params)
+}
+
+func (s *monitorService) Update(m *models.Monitor) error {
+	if err := m.Validate(); err != nil {
+		return err
+	}
+
+	params := repository.UpdateMonitorParams{
+		ID:     int64(m.Id),
+		UserID: m.UserId,
+	}
+
+	_, err := s.repo.UpdateMonitor(context.Background(), params)
+	return err
 }
