@@ -85,11 +85,10 @@ func (s *monitorService) Update(m *models.Monitor) error {
 	}
 
 	params := repository.UpdateMonitorParams{
-		Url:    m.Url,
 		ID:     int64(m.Id),
 		UserID: m.UserId,
 	}
-	
+
 	_, err := s.repo.UpdateMonitor(context.Background(), params)
 	return err
 }

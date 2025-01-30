@@ -10,23 +10,25 @@ import (
 )
 
 const createMonitor = `-- name: CreateMonitor :one
-INSERT INTO monitor(user_id, url)
-VALUES (?, ?)
-RETURNING id, user_id, url, created_at, updated_at
+INSERT INTO monitor(user_id, name, type)
+VALUES (?, ?, ?)
+RETURNING id, user_id, name, type, created_at, updated_at
 `
 
 type CreateMonitorParams struct {
 	UserID int64  `json:"user_id"`
-	Url    string `json:"url"`
+	Name   string `json:"name"`
+	Type   string `json:"type"`
 }
 
 func (q *Queries) CreateMonitor(ctx context.Context, arg CreateMonitorParams) (Monitor, error) {
-	row := q.db.QueryRowContext(ctx, createMonitor, arg.UserID, arg.Url)
+	row := q.db.QueryRowContext(ctx, createMonitor, arg.UserID, arg.Name, arg.Type)
 	var i Monitor
 	err := row.Scan(
 		&i.ID,
 		&i.UserID,
-		&i.Url,
+		&i.Name,
+		&i.Type,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -51,7 +53,7 @@ func (q *Queries) DeleteMonitor(ctx context.Context, arg DeleteMonitorParams) er
 }
 
 const getMonitorByUserIDAndMonitorID = `-- name: GetMonitorByUserIDAndMonitorID :one
-SELECT id, user_id, url, created_at, updated_at
+SELECT id, user_id, name, type, created_at, updated_at
 FROM monitor
 WHERE user_id = ?
   and id = ?
@@ -68,7 +70,8 @@ func (q *Queries) GetMonitorByUserIDAndMonitorID(ctx context.Context, arg GetMon
 	err := row.Scan(
 		&i.ID,
 		&i.UserID,
-		&i.Url,
+		&i.Name,
+		&i.Type,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -76,7 +79,7 @@ func (q *Queries) GetMonitorByUserIDAndMonitorID(ctx context.Context, arg GetMon
 }
 
 const getMonitorsByUserID = `-- name: GetMonitorsByUserID :many
-SELECT id, user_id, url, created_at, updated_at
+SELECT id, user_id, name, type, created_at, updated_at
 FROM monitor
 WHERE user_id = ?
 `
@@ -93,7 +96,8 @@ func (q *Queries) GetMonitorsByUserID(ctx context.Context, userID int64) ([]Moni
 		if err := rows.Scan(
 			&i.ID,
 			&i.UserID,
-			&i.Url,
+			&i.Name,
+			&i.Type,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -112,24 +116,27 @@ func (q *Queries) GetMonitorsByUserID(ctx context.Context, userID int64) ([]Moni
 
 const updateMonitor = `-- name: UpdateMonitor :one
 UPDATE monitor
-SET url = ?, updated_at = CURRENT_TIMESTAMP
-WHERE id = ? AND user_id = ?
-RETURNING id, user_id, url, created_at, updated_at
+SET name       = ?,
+    updated_at = CURRENT_TIMESTAMP
+WHERE id = ?
+  AND user_id = ?
+RETURNING id, user_id, name, type, created_at, updated_at
 `
 
 type UpdateMonitorParams struct {
-	Url    string `json:"url"`
+	Name   string `json:"name"`
 	ID     int64  `json:"id"`
 	UserID int64  `json:"user_id"`
 }
 
 func (q *Queries) UpdateMonitor(ctx context.Context, arg UpdateMonitorParams) (Monitor, error) {
-	row := q.db.QueryRowContext(ctx, updateMonitor, arg.Url, arg.ID, arg.UserID)
+	row := q.db.QueryRowContext(ctx, updateMonitor, arg.Name, arg.ID, arg.UserID)
 	var i Monitor
 	err := row.Scan(
 		&i.ID,
 		&i.UserID,
-		&i.Url,
+		&i.Name,
+		&i.Type,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

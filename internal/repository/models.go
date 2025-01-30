@@ -8,10 +8,23 @@ import (
 	"database/sql"
 )
 
+type HttpMonitor struct {
+	MonitorID           int64          `json:"monitor_id"`
+	Url                 string         `json:"url"`
+	IntervalS           int64          `json:"interval_s"`
+	Retries             int64          `json:"retries"`
+	TimeoutS            int64          `json:"timeout_s"`
+	ExpectedStatusCodes string         `json:"expected_status_codes"`
+	HttpMethod          string         `json:"http_method"`
+	HttpBody            sql.NullString `json:"http_body"`
+	HttpHeaders         sql.NullString `json:"http_headers"`
+}
+
 type Monitor struct {
 	ID        int64        `json:"id"`
 	UserID    int64        `json:"user_id"`
-	Url       string       `json:"url"`
+	Name      string       `json:"name"`
+	Type      string       `json:"type"`
 	CreatedAt sql.NullTime `json:"created_at"`
 	UpdatedAt sql.NullTime `json:"updated_at"`
 }

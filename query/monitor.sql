@@ -1,6 +1,6 @@
 -- name: CreateMonitor :one
-INSERT INTO monitor(user_id, url)
-VALUES (?, ?)
+INSERT INTO monitor(user_id, name, type)
+VALUES (?, ?, ?)
 RETURNING *;
 
 -- name: GetMonitorsByUserID :many
@@ -22,6 +22,8 @@ WHERE id = ?
 
 -- name: UpdateMonitor :one
 UPDATE monitor
-SET url = ?, updated_at = CURRENT_TIMESTAMP
-WHERE id = ? AND user_id = ?
+SET name       = ?,
+    updated_at = CURRENT_TIMESTAMP
+WHERE id = ?
+  AND user_id = ?
 RETURNING *;
